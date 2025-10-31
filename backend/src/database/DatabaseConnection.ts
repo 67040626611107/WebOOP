@@ -1,6 +1,6 @@
 import { MongoClient, Db } from 'mongodb';
 
-// Singleton Pattern สำหรับ Database Connection
+
 export class DatabaseConnection {
   private static instance: DatabaseConnection;
   private client: MongoClient | null = null;
@@ -12,7 +12,7 @@ export class DatabaseConnection {
     this.uri = uri;
   }
 
-  // Singleton getInstance
+  
   public static getInstance(uri?: string): DatabaseConnection {
     if (!DatabaseConnection.instance) {
       if (!uri) {

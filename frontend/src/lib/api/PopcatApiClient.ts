@@ -1,6 +1,5 @@
 import { BaseApiClient } from './BaseApiClient';
 
-// Interface สำหรับ type safety
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -25,7 +24,6 @@ export interface LeaderboardEntry {
   updatedAt?: Date;
 }
 
-// Inheritance - extends BaseApiClient
 export class PopcatApiClient extends BaseApiClient {
   private static instance: PopcatApiClient;
 
@@ -33,7 +31,6 @@ export class PopcatApiClient extends BaseApiClient {
     super(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
   }
 
-  // Singleton pattern
   public static getInstance(): PopcatApiClient {
     if (!PopcatApiClient.instance) {
       PopcatApiClient.instance = new PopcatApiClient();
@@ -41,7 +38,6 @@ export class PopcatApiClient extends BaseApiClient {
     return PopcatApiClient.instance;
   }
 
-  // Implementation ของ abstract methods
   protected async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -53,7 +49,6 @@ export class PopcatApiClient extends BaseApiClient {
     console.error('[PopcatApiClient] Error:', error);
   }
 
-  // Polymorphism - specific methods for Popcat
   async recordClick(sessionId: string): Promise<ApiResponse<ClickData>> {
     return this.post<ApiResponse<ClickData>>('/api/click', { sessionId });
   }

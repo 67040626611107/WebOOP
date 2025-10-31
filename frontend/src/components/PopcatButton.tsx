@@ -4,28 +4,26 @@ import { useState, useEffect } from 'react';
 import { PopcatApiClient } from '@/lib/api/PopcatApiClient';
 import { GameStateManager } from '@/lib/state/GameStateManager';
 
-// Component ใช้ Composition Pattern
 export default function PopcatButton() {
   const [clicks, setClicks] = useState(0);
   const [isClicking, setIsClicking] = useState(false);
   const [totalClicks, setTotalClicks] = useState(0);
 
-  // Composition - ใช้ API Client และ State Manager
   const apiClient = PopcatApiClient.getInstance();
   const stateManager = GameStateManager.getInstance();
 
   useEffect(() => {
-    // Subscribe to state changes
+    
     const unsubscribe = stateManager.subscribe((state) => {
       setClicks(state.clicks);
       setIsClicking(state.isClicking);
     });
 
-    // Load initial data
+    
     loadTotalClicks();
     loadSessionClicks();
 
-    // Reload session clicks periodically to stay in sync with backend
+    
     const interval = setInterval(loadSessionClicks, 3000);
 
     return () => {
@@ -65,7 +63,6 @@ export default function PopcatButton() {
       await apiClient.recordClick(state.sessionId);
       await loadTotalClicks();
 
-      // If user has a username, update leaderboard automatically on every click
       if (state.username) {
         await apiClient.updateLeaderboard(state.username, state.clicks);
         window.dispatchEvent(new CustomEvent('leaderboard-update'));

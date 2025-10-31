@@ -41,28 +41,28 @@ export default function UsernameForm() {
     try {
       const state = stateManager.getState();
 
-      // Get the actual click count from the backend for this session
+      
       const clickResponse = await apiClient.getClicksBySession(state.sessionId);
       const actualClicks = clickResponse.data?.count || 0;
 
       // If changing username and previous username had clicks, remove the old entry
       if (previousUsername && previousUsername !== username && actualClicks > 0) {
-        // Delete the old username from the leaderboard
+        
         try {
           await apiClient.removeFromLeaderboard(previousUsername);
         } catch (err) {
-          // Ignore errors if the user doesn't exist
+          
           console.log(`Could not remove ${previousUsername} from leaderboard`);
         }
       }
 
-      // Update to new username
+      
       stateManager.setUsername(username);
       setPreviousUsername(username);
 
       if (actualClicks > 0) {
         await apiClient.updateLeaderboard(username, actualClicks);
-        // Force refresh the leaderboard
+        
         window.dispatchEvent(new CustomEvent('leaderboard-update'));
       }
 
@@ -74,7 +74,7 @@ export default function UsernameForm() {
   };
 
   const handleChange = () => {
-    // Store the current username as previous before allowing changes
+    
     setPreviousUsername(username);
     setIsSubmitted(false);
   };

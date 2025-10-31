@@ -7,7 +7,6 @@ export interface GameState {
   username: string;
 }
 
-// Inheritance - extends BaseStateManager
 export class GameStateManager extends BaseStateManager<GameState> {
   private static instance: GameStateManager;
 
@@ -28,7 +27,6 @@ export class GameStateManager extends BaseStateManager<GameState> {
     }
   }
 
-  // Singleton pattern
   public static getInstance(): GameStateManager {
     if (!GameStateManager.instance) {
       GameStateManager.instance = new GameStateManager();
@@ -40,7 +38,6 @@ export class GameStateManager extends BaseStateManager<GameState> {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  // Implementation ของ abstract methods
   setState(newState: Partial<GameState>): void {
     this.state = { ...this.state, ...newState };
     this.notifyListeners();
@@ -55,7 +52,6 @@ export class GameStateManager extends BaseStateManager<GameState> {
     this.notifyListeners();
   }
 
-  // Specific methods
   incrementClick(): void {
     this.state.clicks++;
     this.state.isClicking = true;

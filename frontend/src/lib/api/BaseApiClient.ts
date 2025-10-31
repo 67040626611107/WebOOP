@@ -1,4 +1,4 @@
-// Abstract API Client - Abstraction Pattern
+
 export abstract class BaseApiClient {
   protected baseUrl: string;
 
@@ -6,11 +6,11 @@ export abstract class BaseApiClient {
     this.baseUrl = baseUrl;
   }
 
-  // Abstract methods
+  
   protected abstract handleResponse<T>(response: Response): Promise<T>;
   protected abstract handleError(error: any): void;
 
-  // Common fetch method with error handling
+  
   protected async fetch<T>(
     endpoint: string,
     options?: RequestInit
@@ -31,12 +31,12 @@ export abstract class BaseApiClient {
     }
   }
 
-  // Common GET method
+  
   protected async get<T>(endpoint: string): Promise<T> {
     return this.fetch<T>(endpoint, { method: 'GET' });
   }
 
-  // Common POST method
+  
   protected async post<T>(endpoint: string, body?: any): Promise<T> {
     return this.fetch<T>(endpoint, {
       method: 'POST',
@@ -44,7 +44,7 @@ export abstract class BaseApiClient {
     });
   }
 
-  // Common DELETE method
+  
   protected async delete<T>(endpoint: string): Promise<T> {
     return this.fetch<T>(endpoint, { method: 'DELETE' });
   }

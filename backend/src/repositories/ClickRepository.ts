@@ -3,12 +3,12 @@ import { IClickRepository } from './IRepository';
 import { Click } from '../entities/Click';
 import { DatabaseConnection } from '../database/DatabaseConnection';
 
-// Composition - ใช้ DatabaseConnection
+
 export class ClickRepository implements IClickRepository {
   private collection: Collection;
   private readonly collectionName = 'clicks';
 
-  // Constructor - รับ database connection
+  
   constructor(private dbConnection: DatabaseConnection) {
     this.collection = this.dbConnection.getDatabase().collection(this.collectionName);
   }
@@ -61,7 +61,7 @@ export class ClickRepository implements IClickRepository {
     return docs.map(doc => new Click(doc.sessionId, doc.count, doc._id));
   }
 
-  // Polymorphism - specific method for Click
+  
   async incrementClick(sessionId: string): Promise<Click> {
     const existing = await this.findBySessionId(sessionId);
 

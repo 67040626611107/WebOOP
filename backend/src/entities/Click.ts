@@ -1,19 +1,19 @@
 import { ObjectId } from 'mongodb';
 import { BaseEntity } from './BaseEntity';
 
-// Inheritance - สืบทอดจาก BaseEntity
+
 export class Click extends BaseEntity {
   private count: number;
   private sessionId: string;
 
-  // Constructor - รับค่าเริ่มต้น
+  
   constructor(sessionId: string, count: number = 0, id?: ObjectId) {
     super(id);
     this.sessionId = sessionId;
     this.count = count;
   }
 
-  // Encapsulation - getter/setter with validation
+  
   get clickCount(): number {
     return this.count;
   }
@@ -35,7 +35,7 @@ export class Click extends BaseEntity {
     this.updateTimestamp();
   }
 
-  // Implementation ของ abstract methods
+  
   validate(): boolean {
     return this.sessionId.length > 0 && this.count >= 0;
   }

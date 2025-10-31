@@ -11,10 +11,10 @@ export default function Leaderboard() {
 
   useEffect(() => {
     loadLeaderboard();
-    // Refresh every 2 seconds for more real-time updates
+    
     const interval = setInterval(loadLeaderboard, 2000);
 
-    // Listen for manual update events
+    
     const handleUpdate = () => loadLeaderboard();
     window.addEventListener('leaderboard-update', handleUpdate);
 

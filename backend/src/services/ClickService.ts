@@ -2,7 +2,7 @@ import { BaseService } from './BaseService';
 import { ClickRepository } from '../repositories/ClickRepository';
 import { Click } from '../entities/Click';
 
-// Composition - ใช้ ClickRepository
+
 export class ClickService extends BaseService<Click> {
   constructor(private clickRepository: ClickRepository) {
     super();
