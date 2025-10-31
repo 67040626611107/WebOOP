@@ -1,0 +1,313 @@
+@startuml Popcat Game - Class Diagram
+
+title Popcat Game - Full Stack Class Diagram
+
+' ====================
+' STYLING
+' ====================
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam class {
+    BackgroundColor<<abstract>> LightYellow
+    BackgroundColor<<interface>> LightBlue
+    BackgroundColor<<singleton>> LightGreen
+    BorderColor Black
+    ArrowColor Black
+}
+
+' ====================
+' BACKEND - ENTITIES
+' ====================
+package "Backend - Entities" {
+    abstract class BaseEntity <<abstract>> {
+        # _id: ObjectId
+        # createdAt: Date
+        # updatedAt: Date
+        --
+        + constructor(id?: ObjectId)
+        + get id(): string
+        # updateTimestamp(): void
+        {abstract} + toJSON(): Record<string, any>
+        {abstract} + validate(): boolean
+    }
+
+    class Click {
+        - count: number
+        - sessionId: string
+        --
+        + constructor(sessionId: string, count: number, id?: ObjectId)
+        + get clickCount(): number
+        + get session(): string
+        + setCount(value: number): void
+        + increment(): void
+        + toJSON(): Record<string, any>
+        + validate(): boolean
+    }
+
+    class LeaderboardEntry {
+        - username: string
+        - totalClicks: number
+        - rank: number
+        --
+        + constructor(username: string, totalClicks: number, rank: number, id?: ObjectId)
+        + get playerName(): string
+        + get clicks(): number
+        + get position(): number
+        + setRank(rank: number): void
+        + toJSON(): Record<string, any>
+        + validate(): boolean
+    }
+
+    Click --|> BaseEntity
+    LeaderboardEntry --|> BaseEntity
+}
+
+' ====================
+' BACKEND - REPOSITORIES
+' ====================
+package "Backend - Repositories" {
+    interface IRepository<T> <<interface>> {
+        + create(entity: T): Promise<T>
+        + findById(id: string): Promise<T | null>
+        + update(id: string, entity: T): Promise<T | null>
+        + delete(id: string): Promise<boolean>
+        + findAll(): Promise<T[]>
+    }
+
+    interface IClickRepository <<interface>> {
+        + findBySessionId(sessionId: string): Promise<Click | null>
+        + incrementClick(sessionId: string): Promise<Click>
+        + getTotalClicks(): Promise<number>
+    }
+
+    interface ILeaderboardRepository <<interface>> {
+        + findTopPlayers(limit: number): Promise<LeaderboardEntry[]>
+        + updateRankings(): Promise<void>
+        + findByUsername(username: string): Promise<LeaderboardEntry | null>
+    }
+
+    class ClickRepository {
+        - collection: Collection
+        - dbConnection: DatabaseConnection
+        --
+        + constructor(dbConnection: DatabaseConnection)
+        + create(entity: Click): Promise<Click>
+        + findById(id: string): Promise<Click | null>
+        + findBySessionId(sessionId: string): Promise<Click | null>
+        + incrementClick(sessionId: string): Promise<Click>
+        + getTotalClicks(): Promise<number>
+    }
+
+    class LeaderboardRepository {
+        - collection: Collection
+        - dbConnection: DatabaseConnection
+        --
+        + constructor(dbConnection: DatabaseConnection)
+        + create(entity: LeaderboardEntry): Promise<LeaderboardEntry>
+        + findById(id: string): Promise<LeaderboardEntry | null>
+        + findTopPlayers(limit: number): Promise<LeaderboardEntry[]>
+        + updateRankings(): Promise<void>
+        + findByUsername(username: string): Promise<LeaderboardEntry | null>
+    }
+
+    IClickRepository --|> IRepository
+    ILeaderboardRepository --|> IRepository
+    ClickRepository ..|> IClickRepository
+    LeaderboardRepository ..|> ILeaderboardRepository
+}
+
+' ====================
+' BACKEND - SERVICES
+' ====================
+package "Backend - Services" {
+    abstract class BaseService<T> <<abstract>> {
+        {abstract} + processData(data: T): Promise<T>
+        {abstract} + validateInput(data: any): boolean
+        # log(message: string): void
+    }
+
+    class ClickService {
+        - clickRepository: ClickRepository
+        --
+        + constructor(clickRepository: ClickRepository)
+        + handleClick(sessionId: string): Promise<Click>
+        + getClicksBySession(sessionId: string): Promise<Click | null>
+        + getTotalClicks(): Promise<number>
+        + processData(data: Click): Promise<Click>
+        + validateInput(data: any): boolean
+    }
+
+    class LeaderboardService {
+        - leaderboardRepository: LeaderboardRepository
+        --
+        + constructor(leaderboardRepository: LeaderboardRepository)
+        + getTopPlayers(limit: number): Promise<LeaderboardEntry[]>
+        + updatePlayerScore(username: string, clicks: number): Promise<LeaderboardEntry>
+        + refreshRankings(): Promise<void>
+        + processData(data: LeaderboardEntry): Promise<LeaderboardEntry>
+        + validateInput(data: any): boolean
+    }
+
+    ClickService --|> BaseService
+    LeaderboardService --|> BaseService
+    ClickService *-- ClickRepository : has-a
+    LeaderboardService *-- LeaderboardRepository : has-a
+}
+
+' ====================
+' BACKEND - INFRASTRUCTURE
+' ====================
+package "Backend - Infrastructure" {
+    class DatabaseConnection <<singleton>> {
+        - {static} instance: DatabaseConnection
+        - client: MongoClient
+        - database: Db
+        - uri: string
+        --
+        - constructor(uri: string)
+        + {static} getInstance(uri: string): DatabaseConnection
+        + connect(): Promise<void>
+        + disconnect(): Promise<void>
+        + getDatabase(): Db
+        + isConnected(): boolean
+    }
+
+    class Config <<singleton>> {
+        - {static} instance: Config
+        - env: NodeJS.ProcessEnv
+        --
+        - constructor()
+        + {static} getInstance(): Config
+        + get mongoUri(): string
+        + get apiPort(): number
+        + get frontendPort(): number
+    }
+
+    ClickRepository *-- DatabaseConnection : has-a
+    LeaderboardRepository *-- DatabaseConnection : has-a
+}
+
+' ====================
+' BACKEND - APPLICATION
+' ====================
+package "Backend - Application" {
+    class PopcatApplication {
+        - app: Elysia
+        - config: Config
+        - dbConnection: DatabaseConnection
+        - clickService: ClickService
+        - leaderboardService: LeaderboardService
+        --
+        + constructor()
+        - initializeServices(): Promise<void>
+        - setupRoutes(): void
+        - setupCORS(): void
+        + start(): Promise<void>
+    }
+
+    PopcatApplication *-- Config : has-a
+    PopcatApplication *-- DatabaseConnection : has-a
+    PopcatApplication *-- ClickService : has-a
+    PopcatApplication *-- LeaderboardService : has-a
+}
+
+' ====================
+' FRONTEND - API CLIENTS
+' ====================
+package "Frontend - API Clients" {
+    abstract class BaseApiClient <<abstract>> {
+        # baseUrl: string
+        --
+        + constructor(baseUrl: string)
+        # fetch<T>(endpoint: string, options?: RequestInit): Promise<T>
+        {abstract} # handleResponse<T>(response: Response): Promise<T>
+        {abstract} # handleError(error: any): void
+        # get<T>(endpoint: string): Promise<T>
+        # post<T>(endpoint: string, data?: any): Promise<T>
+    }
+
+    class PopcatApiClient <<singleton>> {
+        - {static} instance: PopcatApiClient
+        --
+        - constructor()
+        + {static} getInstance(): PopcatApiClient
+        + recordClick(sessionId: string): Promise<ApiResponse<Click>>
+        + getClicksBySession(sessionId: string): Promise<ApiResponse<Click>>
+        + getTotalClicks(): Promise<ApiResponse<number>>
+        + getLeaderboard(limit?: number): Promise<ApiResponse<LeaderboardEntry[]>>
+        + updateLeaderboard(username: string, clicks: number): Promise<ApiResponse<LeaderboardEntry>>
+        # handleResponse<T>(response: Response): Promise<T>
+        # handleError(error: any): void
+    }
+
+    PopcatApiClient --|> BaseApiClient
+}
+
+' ====================
+' FRONTEND - STATE MANAGEMENT
+' ====================
+package "Frontend - State Management" {
+    abstract class BaseStateManager <<abstract>> {
+        # state: any
+        --
+        {abstract} # getInitialState(): any
+        {abstract} + getState(): any
+        {abstract} + setState(newState: any): void
+        # notifyListeners(): void
+    }
+
+    class GameStateManager <<singleton>> {
+        - {static} instance: GameStateManager
+        - state: GameState
+        - listeners: Function[]
+        --
+        - constructor()
+        + {static} getInstance(): GameStateManager
+        # getInitialState(): GameState
+        + getState(): GameState
+        + setState(newState: Partial<GameState>): void
+        + incrementClick(): void
+        + setSessionId(sessionId: string): void
+        + setUsername(username: string): void
+        + subscribe(listener: Function): Function
+    }
+
+    GameStateManager --|> BaseStateManager
+}
+
+' ====================
+' RELATIONSHIPS ACROSS LAYERS
+' ====================
+PopcatApiClient ..> Click : uses
+PopcatApiClient ..> LeaderboardEntry : uses
+GameStateManager ..> PopcatApiClient : uses
+
+note right of BaseEntity
+  **Abstract Base Class**
+  - ทุก Entity สืบทอดจาก class นี้
+  - กำหนด structure พื้นฐาน
+  - Implements: Encapsulation, Abstraction
+end note
+
+note right of IRepository
+  **Generic Interface**
+  - กำหนด contract สำหรับ repositories
+  - Implements: Polymorphism
+  - แต่ละ repository มี implementation ต่างกัน
+end note
+
+note right of DatabaseConnection
+  **Singleton Pattern**
+  - มี instance เดียวในระบบ
+  - แชร์การเชื่อมต่อ database
+  - ประหยัด resources
+end note
+
+note right of PopcatApplication
+  **Composition Pattern**
+  - รวม components ทั้งหมด
+  - Main entry point ของ backend
+  - Dependency Injection
+end note
+
+@enduml
