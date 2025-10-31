@@ -74,6 +74,7 @@ export interface IRepository<T> {
 - Interface เดียวกัน แต่ implementation ต่างกัน
 - Method overriding ใน child classes
 
+
 ### 6. **Composition** ()
 ```typescript
 // PopcatApplication.ts
