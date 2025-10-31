@@ -23,7 +23,8 @@ export class Config {
   }
 
   get apiPort(): number {
-    return parseInt(this.env.API_PORT || '3001');
+    // Support both BACKEND_PORT and API_PORT for backwards compatibility
+    return parseInt(this.env.BACKEND_PORT || this.env.API_PORT || '3001');
   }
 
   get isDevelopment(): boolean {

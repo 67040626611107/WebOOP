@@ -11,7 +11,7 @@
 
 ## 🎯 OOP Principles ที่ใช้
 
-### 1. **Constructor** (ตัวสร้าง)
+### 1. **Constructor** ()
 ```typescript
 // BaseEntity.ts
 constructor(id?: ObjectId) {
@@ -22,7 +22,7 @@ constructor(id?: ObjectId) {
 ```
 ใช้ในทุก Class สำหรับกำหนดค่าเริ่มต้น
 
-### 2. **Encapsulation** (การห่อหุ้มข้อมูล)
+### 2. **Encapsulation** ()
 ```typescript
 // Click.ts
 private count: number;
@@ -40,7 +40,7 @@ setCount(value: number): void {
 - ใช้ `private` ซ่อนข้อมูลภายใน
 - ใช้ `getter/setter` เข้าถึงข้อมูลอย่างปลอดภัย
 
-### 3. **Inheritance** (การสืบทอด)
+### 3. **Inheritance** ()
 ```typescript
 // Click.ts สืบทอดจาก BaseEntity.ts
 export class Click extends BaseEntity {
@@ -50,7 +50,7 @@ export class Click extends BaseEntity {
 - `BaseEntity` เป็น parent class
 - `Click`, `LeaderboardEntry` เป็น child classes
 
-### 4. **Abstraction** (การทำนามธรรม)
+### 4. **Abstraction** ()
 ```typescript
 // BaseEntity.ts
 export abstract class BaseEntity {
@@ -61,7 +61,7 @@ export abstract class BaseEntity {
 - กำหนด interface ที่ child class ต้อง implement
 - ซ่อนรายละเอียดการทำงานภายใน
 
-### 5. **Polymorphism** (พหุสัณฐาน)
+### 5. **Polymorphism** ()
 ```typescript
 // IRepository.ts
 export interface IRepository<T> {
@@ -158,6 +158,21 @@ docker run -d -p 27017:27017 --name mongodb mongo:latest
 ```bash
 cp .env.example .env
 # แก้ไขค่าใน .env ตามต้องการ
+```
+
+**Environment Variables:**
+```env
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/popcat
+
+# Backend Server Configuration
+BACKEND_PORT=3001     # Port สำหรับ Backend API
+
+# Frontend Server Configuration
+FRONTEND_PORT=3000    # Port สำหรับ Frontend Web
+
+# Frontend API URL (ต้องตรงกับ BACKEND_PORT)
+NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
 ### 3. ติดตั้ง Dependencies
