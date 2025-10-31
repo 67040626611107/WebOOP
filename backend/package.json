@@ -1,0 +1,20 @@
+{
+  "name": "popcat-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir ./dist",
+    "start": "bun run dist/index.js"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.0.0",
+    "elysia": "^1.0.0",
+    "mongodb": "^6.3.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "bun-types": "latest"
+  }
+}
